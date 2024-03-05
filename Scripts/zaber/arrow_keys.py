@@ -2,38 +2,72 @@ from zaber_motion import Units
 from zaber_motion.ascii import Connection
 from pynput import keyboard
 import time
+import sys
 
 def on_press(key):
   well_distance = 8.99 # Distance between microwells
+  sleep_time = 0.3
   try:
         if key == keyboard.Key.left:
-          axis_x.move_relative(well_distance, Units.LENGTH_MILLIMETRES)
+          try: 
+            axis_x.move_relative(well_distance, Units.LENGTH_MILLIMETRES)
+          except:
+            print("Cannot move further in X")
           print("You pressed left arrow")
-          time.sleep(0.1)
+          time.sleep(sleep_time)
+
+          
         elif key == keyboard.Key.right:
-          axis_x.move_relative(-1*well_distance, Units.LENGTH_MILLIMETRES)
+          try:
+            axis_x.move_relative(-1*well_distance, Units.LENGTH_MILLIMETRES)
+          except:
+            print("Cannot move further in X")
           print("You pressed right arrow")
-          time.sleep(0.1)
+          time.sleep(sleep_time)
+
+          
         elif key == keyboard.Key.up:
           print("You pressed up arrow")
-          axis_y.move_relative(well_distance, Units.LENGTH_MILLIMETRES)
-          time.sleep(0.1)
+          try:
+            axis_y.move_relative(well_distance, Units.LENGTH_MILLIMETRES)
+          except:
+            print("Cannot move further in Y")
+          time.sleep(sleep_time)
+
+          
         elif key == keyboard.Key.down:
           print("You pressed down arrow")
-          axis_y.move_relative(-1*well_distance, Units.LENGTH_MILLIMETRES)
-          time.sleep(0.1)
-        elif key == keyboard.Key.W:
+          try:
+            axis_y.move_relative(-1*well_distance, Units.LENGTH_MILLIMETRES)
+          except:
+            print("Cannot move further in Y")
+          time.sleep(sleep_time)
+
+          
+        elif key.char == 'w':
           print("You pressed w")
-          axis_z.move_relative(1, Units.LENGTH_MILLIMETRES)
-          time.sleep(0.1)
-          zPos += 1
-        elif key == keyboard.Key.S:
+          try:
+            axis_z.move_relative(10, Units.LENGTH_MILLIMETRES)
+          except:
+            print("Cannot move further in Z")
+          time.sleep(sleep_time)
+
+          
+        elif key.char == 's':
           print("You pressed s")
-          axis_z.move_relative(-1, Units.LENGTH_MILLIMETRES)
-          # zPos -= 1
-          time.sleep(0.1)
+          try:
+            axis_z.move_relative(-10, Units.LENGTH_MILLIMETRES)
+          except:
+            print("Cannot move further in Z")
+          time.sleep(sleep_time)
+          
   except AttributeError:
       pass
+
+def on_release(key):
+    if key == keyboard.Key.esc:
+        print("Exiting...")
+        sys.exit()
     
 
 with Connection.open_serial_port("COM6") as connection:
@@ -55,5 +89,5 @@ with Connection.open_serial_port("COM6") as connection:
 
     print("Press arrow keys to control:")
   
-    with keyboard.Listener(on_press=on_press) as listener:
+    with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
       listener.join()
