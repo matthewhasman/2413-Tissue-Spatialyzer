@@ -1,3 +1,8 @@
+# Enables keyboard controls for Zaber Stage.
+# Use left/right arrows to control X
+# Use up/down arrows to control Y
+# Use w/s to control Z
+
 from zaber_motion import Units
 from zaber_motion.ascii import Connection
 from pynput import keyboard
@@ -87,7 +92,10 @@ with Connection.open_serial_port("COM6") as connection:
     if not axis_z.is_homed():
       axis_z.home()
 
-    print("Press arrow keys to control:")
+    print("Controls :")
+    print("-> left/right arrows to control X-Position")
+    print("-> up/down arrows to control Y-Position")
+    print("-> w/s characters to control Z-Position")
   
     with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
       listener.join()
