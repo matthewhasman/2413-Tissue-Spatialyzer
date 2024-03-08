@@ -38,7 +38,6 @@ def on_press(key):
           except:
             print("Cannot move further in Y")
           time.sleep(sleep_time)
-
           
         elif key == keyboard.Key.down:
           print("You pressed down arrow")
@@ -74,28 +73,34 @@ def on_release(key):
         print("Exiting...")
         sys.exit()
     
+try:
+  with Connection.open_serial_port("COM6") as connection:
 
-with Connection.open_serial_port("COM6") as connection:
-    connection.enable_alerts()
+      connection.enable_alerts()
 
-    device_list = connection.detect_devices()
-    print("Found {} devices".format(len(device_list)))
+      device_list = connection.detect_devices()
+      print("Found {} devices".format(len(device_list)))
 
-    device = device_list[0]
+      device = device_list[0]
 
-    axis_x = device.get_lockstep(1)
-    axis_x.home()
-    axis_y = device.get_axis(3)
-    axis_z = device.get_axis(4)
-    if not axis_y.is_homed():
-      axis_y.home()
-    if not axis_z.is_homed():
-      axis_z.home()
+      axis_x = device.get_lockstep(1)
+      axis_x.home()
+      axis_y = device.get_axis(3)
+      axis_z = device.get_axis(4)
+      if not axis_y.is_homed():
+        axis_y.home()
+      if not axis_z.is_homed():
+        axis_z.home()
 
-    print("Controls :")
-    print("-> left/right arrows to control X-Position")
-    print("-> up/down arrows to control Y-Position")
-    print("-> w/s characters to control Z-Position")
+      print("Controls :")
+      print("-> left/right arrows to control X-Position")
+      print("-> up/down arrows to control Y-Position")
+      print("-> w/s characters to control Z-Position")
+      
+except:
+  # End script if connection cannot be established
+  print("Cannot open serial port... ending script")
+  sys.exit()
   
-    with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
-      listener.join()
+with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
+  listener.join()
