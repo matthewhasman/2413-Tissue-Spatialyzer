@@ -1,0 +1,12 @@
+print("----------------------------------------------")
+print("Instructions:")
+print("-> Enter a script to execute: ")
+print("     Zaber Scripts: ")
+print("        zaber/home, zaber/arrow_keys, zaber/move_x, zaber/ControlXYZPosition\n")
+print("     Fluigent Scripts: ")
+print("        fluigent/output_pressurize")
+print("----------------------------------------------")
+print("-> Type info to re-display instructions")
+print("-> Press 'C' to exit")
+print("----------------------------------------------")
+
