@@ -50,7 +50,7 @@ def on_press(key):
           
         elif key.char == 'w':
           try:
-            axis_z.move_relative(1, Units.LENGTH_MILLIMETRES)
+            axis_z.move_relative(10, Units.LENGTH_MILLIMETRES)
             print("You pressed w")
           except:
             print("Z out of range")
@@ -58,7 +58,7 @@ def on_press(key):
 
         elif key.char == 's':
           try:
-            axis_z.move_relative(-1, Units.LENGTH_MILLIMETRES)
+            axis_z.move_relative(-10, Units.LENGTH_MILLIMETRES)
             print("You pressed s")
           except:
             print("Z out of range")
@@ -92,6 +92,7 @@ if __name__ == "__main__":
       print(" -> Control X: Left/Right arrow keys ")
       print(" -> Control Y: Up/Down arrow keys ")
       print(" -> Control Z: W/S arrow keys ")
+      print("-------------------------------------------")
 
       with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
         listener.join()
