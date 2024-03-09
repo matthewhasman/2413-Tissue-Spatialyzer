@@ -19,6 +19,16 @@ def clear_input_line():
     while msvcrt.kbhit():
         msvcrt.getch()  # Clear out any existing keystrokes
 
+def info():
+  print("-------------------------------------------")
+  print("Controls: ")
+  print(" -> Control X: Up/Down arrow keys ")
+  print(" -> Control Y: Left/Right arrow keys ")
+  print(" -> Control Z: Press w/s keys ")
+  print(" -> Change Speed: Press p")
+  print(" -> De-display controls: Press i")
+  print("-------------------------------------------")
+
 def on_press(key):
   global speed
   sleep_time = 0.1
@@ -80,6 +90,9 @@ def on_press(key):
             print("Speed changed to " + str(speed))
           except:
             print("Invalid speed")
+
+        elif key.char == 'i':
+          info()
             
   except AttributeError:
       pass
@@ -105,13 +118,7 @@ if __name__ == "__main__":
       axis_y.home()
       axis_z.home()
 
-      print("-------------------------------------------")
-      print("Controls: ")
-      print(" -> Control X: Left/Right arrow keys ")
-      print(" -> Control Y: Up/Down arrow keys ")
-      print(" -> Control Z: Press W/S keys ")
-      print(" -> Change Speed: Press P")
-      print("-------------------------------------------")
+      info()
 
       with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
         listener.join()
