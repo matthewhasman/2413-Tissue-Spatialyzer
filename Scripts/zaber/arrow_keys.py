@@ -36,7 +36,6 @@ def on_press(key):
         if key == keyboard.Key.down:
           try:
             axis_x.move_relative(speed, Units.LENGTH_MILLIMETRES)
-            print("You pressed left arrow")
           except:
             print("X Out of Range")
           time.sleep(sleep_time)
@@ -44,7 +43,6 @@ def on_press(key):
         elif key == keyboard.Key.up:
           try:
             axis_x.move_relative(-1*speed, Units.LENGTH_MILLIMETRES)
-            prinwt("You pressed right arrow")
           except:
             print("X out of range")
           time.sleep(sleep_time)
@@ -52,7 +50,6 @@ def on_press(key):
         elif key == keyboard.Key.left:
           try:
             axis_y.move_relative(speed, Units.LENGTH_MILLIMETRES)
-            print("You pressed up arrow")
           except:
             print("Y out of range")
           time.sleep(sleep_time)
@@ -60,7 +57,6 @@ def on_press(key):
         elif key == keyboard.Key.right:
           try:
             axis_y.move_relative(-1*speed, Units.LENGTH_MILLIMETRES)
-            print("You pressed down arrow")
           except:
             print("Y out of range")
           time.sleep(sleep_time)
@@ -68,7 +64,6 @@ def on_press(key):
         elif key.char == 's':
           try:
             axis_z.move_relative(speed, Units.LENGTH_MILLIMETRES)
-            print("You pressed w")
           except:
             print("Z out of range")
           time.sleep(sleep_time)
@@ -76,7 +71,6 @@ def on_press(key):
         elif key.char == 'w':
           try:
             axis_z.move_relative(-1*speed, Units.LENGTH_MILLIMETRES)
-            print("You pressed s")
           except:
             print("Z out of range")
           time.sleep(sleep_time)
