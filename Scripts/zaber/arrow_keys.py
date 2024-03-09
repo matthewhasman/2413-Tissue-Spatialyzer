@@ -8,61 +8,79 @@ from zaber_motion.ascii import Connection
 from pynput import keyboard
 import time
 import sys
+import msvcrt
+
+speed = 8.99 # Distance between microwells
 
 def main():
     pass
 
+def clear_input_line():
+    while msvcrt.kbhit():
+        msvcrt.getch()  # Clear out any existing keystrokes
+
 def on_press(key):
-  well_distance = 8.99 # Distance between microwells
-  sleep_time = 0.3 #
+  global speed
+  sleep_time = 0.1
   try:
-        if key == keyboard.Key.left:
+        if key == keyboard.Key.down:
           try:
-            axis_x.move_relative(well_distance, Units.LENGTH_MILLIMETRES)
+            axis_x.move_relative(speed, Units.LENGTH_MILLIMETRES)
             print("You pressed left arrow")
           except:
             print("X Out of Range")
           time.sleep(sleep_time)
 
-        elif key == keyboard.Key.right:
+        elif key == keyboard.Key.up:
           try:
-            axis_x.move_relative(-1*well_distance, Units.LENGTH_MILLIMETRES)
+            axis_x.move_relative(-1*speed, Units.LENGTH_MILLIMETRES)
             print("You pressed right arrow")
           except:
             print("X out of range")
           time.sleep(sleep_time)
 
-        elif key == keyboard.Key.up:
+        elif key == keyboard.Key.left:
           try:
-            axis_y.move_relative(well_distance, Units.LENGTH_MILLIMETRES)
+            axis_y.move_relative(speed, Units.LENGTH_MILLIMETRES)
             print("You pressed up arrow")
           except:
             print("Y out of range")
           time.sleep(sleep_time)
 
-        elif key == keyboard.Key.down:
+        elif key == keyboard.Key.right:
           try:
-            axis_y.move_relative(-1*well_distance, Units.LENGTH_MILLIMETRES)
+            axis_y.move_relative(-1*speed, Units.LENGTH_MILLIMETRES)
             print("You pressed down arrow")
           except:
             print("Y out of range")
           time.sleep(sleep_time)
           
-        elif key.char == 'w':
+        elif key.char == 's':
           try:
-            axis_z.move_relative(10, Units.LENGTH_MILLIMETRES)
+            axis_z.move_relative(speed, Units.LENGTH_MILLIMETRES)
             print("You pressed w")
           except:
             print("Z out of range")
           time.sleep(sleep_time)
 
-        elif key.char == 's':
+        elif key.char == 'w':
           try:
-            axis_z.move_relative(-10, Units.LENGTH_MILLIMETRES)
+            axis_z.move_relative(-1*speed, Units.LENGTH_MILLIMETRES)
             print("You pressed s")
           except:
             print("Z out of range")
           time.sleep(sleep_time)
+
+        elif key.char == 'p':
+          print("Enter new speed (mm/movement): ")
+          clear_input_line()
+          speed_input = input().strip()
+          try:
+            speed = float(speed_input)
+            print("Speed changed to " + str(speed))
+          except:
+            print("Invalid speed")
+            
   except AttributeError:
       pass
 
@@ -91,7 +109,8 @@ if __name__ == "__main__":
       print("Controls: ")
       print(" -> Control X: Left/Right arrow keys ")
       print(" -> Control Y: Up/Down arrow keys ")
-      print(" -> Control Z: W/S arrow keys ")
+      print(" -> Control Z: Press W/S keys ")
+      print(" -> Change Speed: Press P")
       print("-------------------------------------------")
 
       with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
