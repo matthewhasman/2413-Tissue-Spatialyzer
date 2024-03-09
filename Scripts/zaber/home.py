@@ -24,10 +24,8 @@ if __name__ == "__main__":
         axis_x.home()
         axis_y = device.get_axis(3)
         axis_z = device.get_axis(4)
-        if not axis_y.is_homed():
-          axis_y.home()
-        if not axis_z.is_homed():
-          axis_z.home()
+        axis_y.home()
+        axis_z.home()
         
   except:
     # End script if connection cannot be established

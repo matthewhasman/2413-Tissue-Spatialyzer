@@ -14,60 +14,55 @@ def main():
 
 def on_press(key):
   well_distance = 8.99 # Distance between microwells
-  sleep_time = 0.3
+  sleep_time = 0.3 #
   try:
         if key == keyboard.Key.left:
-          try: 
+          try:
             axis_x.move_relative(well_distance, Units.LENGTH_MILLIMETRES)
+            print("You pressed left arrow")
           except:
-            print("Cannot move further in X")
-          print("You pressed left arrow")
+            print("X Out of Range")
           time.sleep(sleep_time)
 
-          
         elif key == keyboard.Key.right:
           try:
             axis_x.move_relative(-1*well_distance, Units.LENGTH_MILLIMETRES)
+            print("You pressed right arrow")
           except:
-            print("Cannot move further in X")
-          print("You pressed right arrow")
+            print("X out of range")
           time.sleep(sleep_time)
 
-          
         elif key == keyboard.Key.up:
-          print("You pressed up arrow")
           try:
             axis_y.move_relative(well_distance, Units.LENGTH_MILLIMETRES)
+            print("You pressed up arrow")
           except:
-            print("Cannot move further in Y")
+            print("Y out of range")
           time.sleep(sleep_time)
-          
+
         elif key == keyboard.Key.down:
-          print("You pressed down arrow")
           try:
             axis_y.move_relative(-1*well_distance, Units.LENGTH_MILLIMETRES)
+            print("You pressed down arrow")
           except:
-            print("Cannot move further in Y")
+            print("Y out of range")
           time.sleep(sleep_time)
-
           
         elif key.char == 'w':
-          print("You pressed w")
           try:
-            axis_z.move_relative(10, Units.LENGTH_MILLIMETRES)
+            axis_z.move_relative(1, Units.LENGTH_MILLIMETRES)
+            print("You pressed w")
           except:
-            print("Cannot move further in Z")
+            print("Z out of range")
           time.sleep(sleep_time)
 
-          
         elif key.char == 's':
-          print("You pressed s")
           try:
-            axis_z.move_relative(-10, Units.LENGTH_MILLIMETRES)
+            axis_z.move_relative(-1, Units.LENGTH_MILLIMETRES)
+            print("You pressed s")
           except:
-            print("Cannot move further in Z")
+            print("Z out of range")
           time.sleep(sleep_time)
-          
   except AttributeError:
       pass
 
@@ -77,34 +72,26 @@ def on_release(key):
         sys.exit()
 
 if __name__ == "__main__":
-  try:
-    with Connection.open_serial_port("COM6") as connection:
+  with Connection.open_serial_port("COM6") as connection:
+      connection.enable_alerts()
 
-        connection.enable_alerts()
+      device_list = connection.detect_devices()
+      print("Found {} devices".format(len(device_list)))
 
-        device_list = connection.detect_devices()
-        print("Found {} devices".format(len(device_list)))
+      device = device_list[0]
 
-        device = device_list[0]
+      axis_x = device.get_lockstep(1)
+      axis_x.home()
+      axis_y = device.get_axis(3)
+      axis_z = device.get_axis(4)
+      axis_y.home()
+      axis_z.home()
 
-        axis_x = device.get_lockstep(1)
-        axis_x.home()
-        axis_y = device.get_axis(3)
-        axis_z = device.get_axis(4)
-        if not axis_y.is_homed():
-          axis_y.home()
-        if not axis_z.is_homed():
-          axis_z.home()
+      print("-------------------------------------------")
+      print("Controls: ")
+      print(" -> Control X: Left/Right arrow keys ")
+      print(" -> Control Y: Up/Down arrow keys ")
+      print(" -> Control Z: W/S arrow keys ")
 
-        print("Controls :")
-        print("-> left/right arrows to control X-Position")
-        print("-> up/down arrows to control Y-Position")
-        print("-> w/s characters to control Z-Position")
-        
-  except:
-    # End script if connection cannot be established
-    print("Cannot open serial port... ending script")
-    sys.exit()
-    
-  with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
-    listener.join()
+      with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
+        listener.join()
