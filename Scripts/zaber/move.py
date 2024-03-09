@@ -11,7 +11,14 @@ import sys
 def main():
     pass
 
-print(sys.argv)
+def info():
+  print("-------------------------------------------")
+  print("Controls: ")
+  print(" -> Enter 1 - 12 to select Y-Coordinate")
+  print(" -> Enter A - H to select X-Coordinate")
+  print(" -> Enter 'exit' to close script")
+  print(" -> Enter 'info' to de-display controls")
+  print("-------------------------------------------")
 
 if __name__ == "__main__":
   with Connection.open_serial_port("COM6") as connection:
@@ -28,12 +35,7 @@ if __name__ == "__main__":
       axis_y = device.get_axis(3)
       axis_z = device.get_axis(4)
 
-      print("-------------------------------------------")
-      print("Controls: ")
-      print(" -> Enter 1 - 12 to select Y-Coordinate")
-      print(" -> Enter A - H to select X-Coordinate")
-      print(" -> Enter 'exit' to close script")
-      print("-------------------------------------------")
+      info()
 
       while True:
         # Waiting for user input
@@ -41,6 +43,10 @@ if __name__ == "__main__":
 
         if (coord == "exit"):
             sys.exit()
+        
+        if (coord == "info"):
+          info()
+          continue
 
         # Convert to int and char
         try:
