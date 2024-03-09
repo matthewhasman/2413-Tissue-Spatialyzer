@@ -44,7 +44,7 @@ def on_press(key):
         elif key == keyboard.Key.up:
           try:
             axis_x.move_relative(-1*speed, Units.LENGTH_MILLIMETRES)
-            print("You pressed right arrow")
+            prinwt("You pressed right arrow")
           except:
             print("X out of range")
           time.sleep(sleep_time)
