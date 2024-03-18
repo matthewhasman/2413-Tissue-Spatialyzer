@@ -27,6 +27,7 @@ def info():
   print(" -> Control Z: Press w/s keys ")
   print(" -> Change Speed: Press p")
   print(" -> De-display controls: Press i")
+  print(" -> Display Current coordinate: Press c")
   print("-------------------------------------------")
 
 def on_press(key):
@@ -87,6 +88,12 @@ def on_press(key):
 
         elif key.char == 'i':
           info()
+
+        elif key.char == 'c':
+          print("Coordinates: ")
+          print("X-Coordinate: " + str(axis_x.get_position(Units.LENGTH_MILLIMETRES)))
+          print("Y-Coordinate: " + str(axis_y.get_position(Units.LENGTH_MILLIMETRES)))
+          print("Z-Coordinate: " + str(axis_z.get_position(Units.LENGTH_MILLIMETRES)))
             
   except AttributeError:
       pass
