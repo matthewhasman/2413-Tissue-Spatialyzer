@@ -28,8 +28,9 @@ def move_once(well="A1", port="COM1", ref_x_coord = 0, ref_y_coord = 200):
         y_axis = device.get_axis(3)
         z_axis = device.get_axis(4)
 
-        x_axis.home()
-        y_axis.home()
+        x_axis.home(wait_until_idle=False)
+        y_axis.home(wait_until_idle=False)
+        z_axis.home(wait_until_idle=False)
 
         letter = well[0].lower()
         character_id = ord(letter) - ord('a')
@@ -37,6 +38,10 @@ def move_once(well="A1", port="COM1", ref_x_coord = 0, ref_y_coord = 200):
 
         x_coord = ref_x_coord + WELL_SPACING_MM * character_id
         y_coord = ref_y_coord - WELL_SPACING_MM * (number-1)
+
+        x_axis.wait_until_idle()
+        y_axis.wait_until_idle()
+        z_axis.wait_until_idle()
 
         # Remove seal before moving to new well
         z_axis.move_absolute(100, Units.LENGTH_MILLIMETRES, wait_until_idle=False)

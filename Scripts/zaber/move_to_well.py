@@ -1,5 +1,6 @@
 import sys
 from move_once import move_once
+from create_seal import create_seal
 from PyQt6.QtWidgets import *
 from zaber_motion import Units
 from zaber_motion.ascii import Connection
@@ -92,17 +93,17 @@ class WellPlateGUI(QWidget):
                 with Connection.open_serial_port(self.port) as connection:
                     connection.enable_alerts()
 
-                    print("here")
-
                     device_list = connection.detect_devices()
-                    print("Found {} devices".format(len(device_list)))
 
-                    device = device_list[0]
                     return True
             except Exception as e:
                 return False
         
-            
+    def create_seal(self):
+        if create_seal(self.selected_port):
+            self.grid.itemAtPosition(4,13).widget().setText("Seal Status: Successful")
+        else:
+            self.grid.itemAtPosition(4,13).widget().setText("Seal Status: Failed")
 
     def initGUI(self):
         grid = QGridLayout()
@@ -158,6 +159,13 @@ class WellPlateGUI(QWidget):
         test_button = QPushButton("Test Connection")
         test_button.clicked.connect(self.test_connection)
         grid.layout().addWidget(test_button, 3, 14)
+
+        label = QLabel("Seal Status: Unknown")
+        grid.layout().addWidget(label, 4, 13)
+
+        seal_well_button = QPushButton("Seal Well")
+        seal_well_button.clicked.connect(self.create_seal)
+        grid.layout().addWidget(seal_well_button, 5, 13)
 
         self.grid = grid
 
