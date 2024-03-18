@@ -11,13 +11,13 @@ class WellPlateGUI(QWidget):
     def __init__(self):
         super().__init__()
         self.initGUI()
-        self.__x_coord = None
-        self.__y_coord = None
+        self.x_coord = None
+        self.y_coord = None
         self.selected_port = None
 
     def well_button_clicked(self, button_name):
         
-        if (self.__x_coord == None or self.__y_coord == None):
+        if (self.x_coord == None or self.y_coord == None):
             dialog = QDialog()
             dialog.setWindowTitle('Warning')
 
@@ -52,16 +52,57 @@ class WellPlateGUI(QWidget):
 
 
     def handle_x_input(self, line_edit):
-        self.__x_coord = line_edit.text()
+        self.x_coord = line_edit.text()
 
     def handle_y_input(self, line_edit):
-        self.__y_coord = line_edit.text()
+        self.y_coord = line_edit.text()
 
     def selectionChanged(self, index):
         if index != 0:
             self.selected_port = "COM" + str(index)
         else:
             self.selected_port = None
+
+    def test_connection(self):
+        if self.check_zaber_connection():
+            self.grid.itemAtPosition(2,14).widget().setText("Connection Status: Connected")
+        else:
+            self.grid.itemAtPosition(2,14).widget().setText("Connection Status: Disconnected")
+
+    def check_zaber_connection(self):
+        if (self.selected_port == None):
+            dialog = QDialog()
+            dialog.setWindowTitle('Warning')
+
+            layout = QVBoxLayout()
+
+            label = QLabel('You must selected a serial port before testing the connection.')
+            layout.addWidget(label)
+
+            ok_button = QPushButton('OK')
+            ok_button.clicked.connect(dialog.accept)
+            layout.addWidget(ok_button)
+
+            dialog.setLayout(layout)
+            dialog.exec()
+
+            return False
+        else:
+            try:
+                with Connection.open_serial_port(self.port) as connection:
+                    connection.enable_alerts()
+
+                    print("here")
+
+                    device_list = connection.detect_devices()
+                    print("Found {} devices".format(len(device_list)))
+
+                    device = device_list[0]
+                    return True
+            except Exception as e:
+                return False
+        
+            
 
     def initGUI(self):
         grid = QGridLayout()
@@ -110,6 +151,15 @@ class WellPlateGUI(QWidget):
 
         label = QLabel('Port Selection')
         grid.layout().addWidget(label, 2, 13)
+
+        label = QLabel("Connection Status: Unknown")
+        grid.layout().addWidget(label, 2, 14)
+
+        test_button = QPushButton("Test Connection")
+        test_button.clicked.connect(self.test_connection)
+        grid.layout().addWidget(test_button, 3, 14)
+
+        self.grid = grid
 
         self.setWindowTitle('96-Well Microplate GUI')
         self.setGeometry(100, 100, 800, 600)
