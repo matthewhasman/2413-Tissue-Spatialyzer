@@ -62,10 +62,9 @@ class WellPlateGUI(QWidget):
 
             self.x_axis.wait_until_idle()
             self.y_axis.wait_until_idle()
-            self.z_axis.wait_until_idle()
 
             # Remove seal before moving to new well
-            self.z_axis.move_absolute(50, Units.LENGTH_MILLIMETRES, wait_until_idle=False)
+            self.z_axis.move_absolute(50, Units.LENGTH_MILLIMETRES)
 
             try:
                 self.x_axis.move_absolute(x_coord, Units.LENGTH_MILLIMETRES, wait_until_idle=False)
@@ -138,11 +137,8 @@ class WellPlateGUI(QWidget):
             self.grid.itemAtPosition(2,14).widget().setText("Connection Status: Disconnected")
         
     def create_seal(self):
-        # if create_seal(self.selected_port):
-        #     self.grid.itemAtPosition(4,13).widget().setText("Seal Status: Successful")
-        # else:
-        #     self.grid.itemAtPosition(4,13).widget().setText("Seal Status: Failed")
-        pass
+        self.z_axis.home(wait_until_idle=False)
+        self.z_axis.move_absolute(101.6)
 
     def initGUI(self):
         grid = QGridLayout()
