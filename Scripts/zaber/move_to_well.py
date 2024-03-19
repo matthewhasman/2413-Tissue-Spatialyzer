@@ -1,8 +1,6 @@
 import sys
-
-from PyQt6.QtGui import QCloseEvent
 from move_once import move_once
-from create_seal import create_seal
+#from create_seal import create_seal
 from PyQt6.QtWidgets import *
 from zaber_motion import Units
 from zaber_motion.ascii import Connection
@@ -13,10 +11,14 @@ class WellPlateGUI(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.initGUI()
         self.x_coord = None
         self.y_coord = None
         self.selected_port = None
+        self.connection = None
+        self.x_axis = None
+        self.y_axis = None
+        self.z_axis = None
+        self.initGUI()
 
     def well_button_clicked(self, button_name):
         
@@ -35,7 +37,7 @@ class WellPlateGUI(QWidget):
 
             dialog.setLayout(layout)
             dialog.exec()
-        elif (self.selected_port == None):
+        elif (self.selected_port == None or self.connection == None):
             dialog = QDialog()
             dialog.setWindowTitle('Warning')
 
@@ -68,10 +70,7 @@ class WellPlateGUI(QWidget):
             try:
                 self.x_axis.move_absolute(x_coord, Units.LENGTH_MILLIMETRES, wait_until_idle=False)
                 self.y_axis.move_absolute(y_coord, Units.LENGTH_MILLIMETRES, wait_until_idle=False)
-                self.x_axis.wait_until_idle()
-                self.y_axis.wait_until_idle()
-                self.z_axis.wait_until_idle()
-            except:
+            except Exception as e:
                 dialog = QDialog()
                 dialog.setWindowTitle(type(e).__name__)
 
@@ -89,71 +88,61 @@ class WellPlateGUI(QWidget):
 
 
     def handle_x_input(self, line_edit):
-        self.x_coord = int(line_edit.text())
+        self.x_coord = float(line_edit.text())
+        self.grid.itemAtPosition(0,13).widget().setText('Top Left X Position: ' + str(self.x_coord))
 
     def handle_y_input(self, line_edit):
-        self.y_coord = int(line_edit.text())
+        self.y_coord = float(line_edit.text())
+        self.grid.itemAtPosition(0,14).widget().setText('Top Left X Position: ' + str(self.y_coord))
 
     def selectionChanged(self, index):
         if index != 0:
-            self.selected_port = "COM" + str(index)
-            self.connection = Connection.open_serial_port(self.selected_port)
-            self.connection.enable_alerts()
+            try:
+                self.selected_port = "COM" + str(index)
+                self.connection = Connection.open_serial_port(self.selected_port)
+                self.connection.enable_alerts()
 
-            device_list = self.connection.detect_devices()
-            device = device_list[0]
+                device_list = self.connection.detect_devices()
+                device = device_list[0]
 
-            self.x_axis = device.get_lockstep(1)
-            self.y_axis = device.get_axis(3)
-            self.z_axis = device.get_axis(4)
+                self.x_axis = device.get_lockstep(1)
+                self.y_axis = device.get_axis(3)
+                self.z_axis = device.get_axis(4)
 
-            self.x_axis.home(wait_until_idle=False)
-            self.y_axis.home(wait_until_idle=False)
-            self.z_axis.home(wait_until_idle=False)
+                self.x_axis.home(wait_until_idle=False)
+                self.y_axis.home(wait_until_idle=False)
+                self.z_axis.home(wait_until_idle=False)
+
+                self.grid.itemAtPosition(2,14).widget().setText("Connection Status: Connected")
+            except Exception as e:
+                dialog = QDialog()
+                dialog.setWindowTitle(type(e).__name__)
+
+                layout = QVBoxLayout()
+
+                label = QLabel(str(e))
+                layout.addWidget(label)
+
+                ok_button = QPushButton('OK')
+                ok_button.clicked.connect(dialog.accept)
+                layout.addWidget(ok_button)
+
+                dialog.setLayout(layout)
+                dialog.exec()
+
+                self.connection = None
+                self.grid.itemAtPosition(2,14).widget().setText("Connection Status: Disconnected")
         else:
             self.connection.close()
             self.selected_port = None
-
-    def test_connection(self):
-        if self.check_zaber_connection():
-            self.grid.itemAtPosition(2,14).widget().setText("Connection Status: Connected")
-        else:
             self.grid.itemAtPosition(2,14).widget().setText("Connection Status: Disconnected")
-
-    def check_zaber_connection(self):
-        if (self.selected_port == None):
-            dialog = QDialog()
-            dialog.setWindowTitle('Warning')
-
-            layout = QVBoxLayout()
-
-            label = QLabel('You must selected a serial port before testing the connection.')
-            layout.addWidget(label)
-
-            ok_button = QPushButton('OK')
-            ok_button.clicked.connect(dialog.accept)
-            layout.addWidget(ok_button)
-
-            dialog.setLayout(layout)
-            dialog.exec()
-
-            return False
-        else:
-            try:
-                with Connection.open_serial_port(self.port) as connection:
-                    connection.enable_alerts()
-
-                    device_list = connection.detect_devices()
-
-                    return True
-            except Exception as e:
-                return False
         
     def create_seal(self):
-        if create_seal(self.selected_port):
-            self.grid.itemAtPosition(4,13).widget().setText("Seal Status: Successful")
-        else:
-            self.grid.itemAtPosition(4,13).widget().setText("Seal Status: Failed")
+        # if create_seal(self.selected_port):
+        #     self.grid.itemAtPosition(4,13).widget().setText("Seal Status: Successful")
+        # else:
+        #     self.grid.itemAtPosition(4,13).widget().setText("Seal Status: Failed")
+        pass
 
     def initGUI(self):
         grid = QGridLayout()
@@ -205,10 +194,6 @@ class WellPlateGUI(QWidget):
 
         label = QLabel("Connection Status: Unknown")
         grid.layout().addWidget(label, 2, 14)
-
-        test_button = QPushButton("Test Connection")
-        test_button.clicked.connect(self.test_connection)
-        grid.layout().addWidget(test_button, 3, 14)
 
         label = QLabel("Seal Status: Unknown")
         grid.layout().addWidget(label, 4, 13)
