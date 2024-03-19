@@ -4,6 +4,7 @@ from move_once import move_once
 from PyQt6.QtWidgets import *
 from zaber_motion import Units
 from zaber_motion.ascii import Connection
+from time import sleep
 
 WELL_SPACING_mm = 8.99
 
@@ -21,7 +22,9 @@ class WellPlateGUI(QWidget):
         self.initGUI()
 
     def well_button_clicked(self, button_name):
-        
+        self.move_to_well(button_name)
+
+    def move_to_well(self, button_name):
         if (self.x_coord == None or self.y_coord == None):
             dialog = QDialog()
             dialog.setWindowTitle('Warning')
@@ -93,6 +96,23 @@ class WellPlateGUI(QWidget):
     def handle_y_input(self, line_edit):
         self.y_coord = float(line_edit.text())
         self.grid.itemAtPosition(0,14).widget().setText('Top Left X Position: ' + str(self.y_coord))
+
+    def testAll(self):
+        # Add labels for rows (A-H)
+        rows_label = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+
+        # Add labels for columns (1-12)
+        columns_label = [str(i) for i in range(1, 13)]
+
+        # Add buttons for each well
+        for row in range(len(rows_label)):
+            for col in range(len(columns_label)):
+                self.move_to_well(rows_label[row] + str(col))
+                self.x_axis.wait_until_idle()
+                self.y_axis.wait_until_idle()
+                self.z_axis.wait_until_idle()
+                self.create_seal()
+                sleep(5)
 
     def selectionChanged(self, index):
         if index != 0:
@@ -197,6 +217,10 @@ class WellPlateGUI(QWidget):
         seal_well_button = QPushButton("Seal Well")
         seal_well_button.clicked.connect(self.create_seal)
         grid.layout().addWidget(seal_well_button, 5, 13)
+
+        test_all_button = QPushButton("Run All Well Test")
+        test_all_button.clicked.connect(self.testAll)
+        grid.layout().addWidget(test_all_button, 5, 14)
 
         self.grid = grid
 
