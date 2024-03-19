@@ -58,7 +58,7 @@ class WellPlateGUI(QWidget):
         else:
             letter = button_name[0].lower()
             character_id = ord(letter) - ord('a')
-            number = int(button_name[1])
+            number = int(button_name[1:])
 
             x_coord = self.x_coord + WELL_SPACING_mm * character_id
             y_coord = self.y_coord - WELL_SPACING_mm * (number-1)
@@ -107,7 +107,7 @@ class WellPlateGUI(QWidget):
         # Add buttons for each well
         for row in range(len(rows_label)):
             for col in range(len(columns_label)):
-                self.move_to_well(rows_label[row] + str(col))
+                self.move_to_well(rows_label[row] + str(col+1))
                 self.x_axis.wait_until_idle()
                 self.y_axis.wait_until_idle()
                 self.z_axis.wait_until_idle()
@@ -128,9 +128,9 @@ class WellPlateGUI(QWidget):
                 self.y_axis = device.get_axis(3)
                 self.z_axis = device.get_axis(4)
 
+                self.z_axis.home()
                 self.x_axis.home(wait_until_idle=False)
                 self.y_axis.home(wait_until_idle=False)
-                self.z_axis.home(wait_until_idle=False)
 
                 self.grid.itemAtPosition(2,14).widget().setText("Connection Status: Connected")
             except Exception as e:
@@ -157,8 +157,8 @@ class WellPlateGUI(QWidget):
             self.grid.itemAtPosition(2,14).widget().setText("Connection Status: Disconnected")
         
     def create_seal(self):
-        self.z_axis.home(wait_until_idle=False)
-        self.z_axis.move_absolute(101.6)
+        self.z_axis.wait_until_idle()
+        self.z_axis.move_absolute(104.6, Units.LENGTH_MILLIMETRES)
 
     def initGUI(self):
         grid = QGridLayout()
