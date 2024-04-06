@@ -1,9 +1,12 @@
+import sys
+sys.path.append('C:\\Users\\Cole Rowell\\Desktop\\Capstone\\2413-Tissue-Spatialyzer')
+
 from zaber_motion import Units
 from zaber_motion.ascii import Connection
 from PyQt6.QtWidgets import *
 from Fluigent.SDK import *
 import time
-import sys
+
 
 def create_seal(port="COM1"):
     """Moves to the given well based off of A1 reference x and y coordinates by connection to the Zaber stage with the input port.
@@ -15,6 +18,7 @@ def create_seal(port="COM1"):
         ref_y_coord (int): Y coordinate of the A1 well.
     """
     try:
+        fgt_set_pressure(0, -400)
         with Connection.open_serial_port(port) as connection:
             connection.enable_alerts()
 
@@ -41,6 +45,7 @@ def create_seal(port="COM1"):
 
             return sealed
     except Exception as e:
+        app = QApplication(sys.argv)
         dialog = QDialog()
         dialog.setWindowTitle(type(e).__name__)
 

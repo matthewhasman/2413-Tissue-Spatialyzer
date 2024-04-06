@@ -1,6 +1,4 @@
 import sys
-from move_once import move_once
-#from create_seal import create_seal
 from PyQt6.QtWidgets import *
 from zaber_motion import Units
 from zaber_motion.ascii import Connection
