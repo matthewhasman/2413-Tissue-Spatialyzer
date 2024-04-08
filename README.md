@@ -7,4 +7,14 @@ Run main.py to run individual scripts controlling Fluigent and Zaber controllers
 
 ![IMG_3096](https://github.com/matthewhasman/2413-Tissue-Spatialyzer/assets/90156617/ddbb311c-1a43-4f66-84be-2941adc62595)
 
+### Directory:
+Scripts:
+- Python code for actuating the XYZ Zaber stage
+- Current GUI for calibrating hardware
+- MATLAB scripts for parsing raw data from Fluigent hardware
 
+Fluigent:
+- Contains the Fluigent software for actuating fluidic hardware
+
+Application:
+- GUI in Qt Designer
