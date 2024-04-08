@@ -210,7 +210,7 @@ class ArrowsGUI(QMainWindow):
         else:
             self.selected_port = None
 
-    def updateCoords():
+    def updateCoords(self):
       self.x_coord = axis_x.get_position(Units.LENGTH_MILLIMETRES)
       self.y_coord = axis_y.get_position(Units.LENGTH_MILLIMETRES)
       self.z_coord = axis_z.get_position(Units.LENGTH_MILLIMETRES)

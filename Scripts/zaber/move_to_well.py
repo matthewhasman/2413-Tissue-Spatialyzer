@@ -65,7 +65,7 @@ class WellPlateGUI(QWidget):
             self.y_axis.wait_until_idle()
 
             # Remove seal before moving to new well
-            self.z_axis.move_absolute(50, Units.LENGTH_MILLIMETRES)
+            self.z_axis.move_absolute(90, Units.LENGTH_MILLIMETRES)
 
             try:
                 self.x_axis.move_absolute(x_coord, Units.LENGTH_MILLIMETRES, wait_until_idle=False)
@@ -110,7 +110,7 @@ class WellPlateGUI(QWidget):
                 self.y_axis.wait_until_idle()
                 self.z_axis.wait_until_idle()
                 self.create_seal()
-                sleep(5)
+                sleep(.25)
 
     def selectionChanged(self, index):
         if index != 0:
@@ -156,7 +156,7 @@ class WellPlateGUI(QWidget):
         
     def create_seal(self):
         self.z_axis.wait_until_idle()
-        self.z_axis.move_absolute(104.6, Units.LENGTH_MILLIMETRES)
+        self.z_axis.move_absolute(105, Units.LENGTH_MILLIMETRES)
 
     def initGUI(self):
         grid = QGridLayout()
