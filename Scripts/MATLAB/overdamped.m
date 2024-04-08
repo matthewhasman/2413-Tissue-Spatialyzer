@@ -1,3 +1,5 @@
+% Determines the second order approximation transfer function for an overdamped system
+
 function [G,wn,zeta, tau_r]=overdamped(t, y)
     s = tf('s');
     FV = y(end);
