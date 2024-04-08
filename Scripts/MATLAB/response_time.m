@@ -1,3 +1,5 @@
+% Plots raw pressure data with a second order approximation
+
 clear all; close all;
 
 % Parse Excel files for data:
