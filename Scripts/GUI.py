@@ -2,6 +2,7 @@ import sys
 import serial.tools.list_ports
 from PyQt6.QtGui import QCloseEvent
 from PyQt6.QtWidgets import *
+from PyQt6 import QtCore
 from zaber_motion import Units
 from zaber_motion.ascii import Connection
 from time import sleep
@@ -28,6 +29,44 @@ class ExceptionDialog:
 
         dialog.setLayout(layout)
         dialog.exec()
+
+class TaskProgressWindow(QMainWindow):
+        def __init__(self):
+            super().__init__()
+
+            self.setWindowTitle("Task Progress")
+            self.setGeometry(200, 200, 400, 150)
+
+            main_widget = QWidget()
+            self.setCentralWidget(main_widget)
+
+            # Create a main layout for the central widget
+            main_layout = QVBoxLayout()
+            main_widget.setLayout(main_layout)
+
+            # Create a widget to hold the progress bar and label
+            progress_widget = QWidget()
+            progress_layout = QVBoxLayout()
+            progress_widget.setLayout(progress_layout)
+
+            # Add a label above the progress bar
+            label = QLabel("Task Completion Percentage")
+            label.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)  # Align text horizontally to the center
+            progress_layout.addWidget(label)
+
+            # Add the progress bar
+            self.progress_bar = QProgressBar()
+            self.progress_bar.setRange(0, 100)  # Set the range from 0 to 100
+            progress_layout.addWidget(self.progress_bar)
+
+            # Add the progress widget to the main layout
+            main_layout.addStretch(1)  # Add stretchable space above the progress widget
+            main_layout.addWidget(progress_widget)
+            main_layout.addStretch(1)  # Add stretchable space below the progress widget
+
+
+        def update_progress(self, percent):
+            self.progress_bar.setValue(percent)
 
 class StartupPage(QWidget):
     def __init__(self):
@@ -197,17 +236,29 @@ class ZaberWidget(QWidget):
         # Add labels for columns (1-12)
         columns_label = [str(i) for i in range(1, 13)]
 
+        progress = 0
+        total_wells = len(rows_label) * len(columns_label)
+        test_progress_window = TaskProgressWindow()
+        test_progress_window.show()
+
+        test_progress_window.update_progress(0)
+
         try:
             # Add buttons for each well
             for row in range(len(rows_label)):
                 for col in range(len(columns_label)):
-                        self.move_to_well(rows_label[row] + str(col+1))
-                        self.x_axis.wait_until_idle()
-                        self.y_axis.wait_until_idle()
-                        self.z_axis.wait_until_idle()
-                        self.create_seal()
-                        sleep(.25)
+                    self.move_to_well(rows_label[row] + str(col+1))
+                    self.x_axis.wait_until_idle()
+                    self.y_axis.wait_until_idle()
+                    self.z_axis.wait_until_idle()
+                    self.create_seal()
+                    sleep(.25)
+                    progress = progress + 1
+                    test_progress_window.update_progress(round(progress/total_wells))
+                    test_progress_window.close()
+
         except Exception as e:
+            test_progress_window.close()
             ExceptionDialog.show_exception_dialog(e)
 
     def randomMove(self):
@@ -216,6 +267,11 @@ class ZaberWidget(QWidget):
 
         # Add labels for columns (1-12)
         columns_label = [str(i) for i in range(1, 13)]
+
+        test_progress_window = TaskProgressWindow()
+        test_progress_window.show()
+
+        test_progress_window.update_progress(0)
 
         try:
             # Add buttons for each well
@@ -228,7 +284,10 @@ class ZaberWidget(QWidget):
                 self.z_axis.wait_until_idle()
                 self.create_seal()
                 sleep(.25)
+                test_progress_window.update_progress( (i+1) * 10)
+                test_progress_window.close()
         except Exception as e:
+            test_progress_window.close()
             ExceptionDialog.show_exception_dialog(e)
 
     def selectionChanged(self, index):
@@ -272,6 +331,15 @@ class ZaberWidget(QWidget):
         except Exception as e:
             ExceptionDialog.show_exception_dialog(e)
 
+    def remove_seal(self):
+        try:
+            self.z_axis.wait_until_idle()
+            self.z_axis.move_absolute(90, Units.LENGTH_MILLIMETRES)
+            self.grid.itemAtPosition(4, 13).widget().setText("Seal Status: Unsealed")
+            self.updateCoords()
+        except Exception as e:
+            ExceptionDialog.show_exception_dialog(e)
+
     def initGUI(self):
         microwell_grid = QGridLayout()
         main_grid = QGridLayout()
@@ -285,6 +353,7 @@ class ZaberWidget(QWidget):
         # Add labels for columns (1-12)
         columns_label = [str(i) for i in range(1, 13)]
 
+
         # Add buttons for each well
         for row in range(len(rows_label)):
             for col in range(len(columns_label)):
@@ -292,7 +361,6 @@ class ZaberWidget(QWidget):
                 button = QPushButton(button_name)
                 button.clicked.connect(lambda checked, name=button_name: self.well_button_clicked(name))
                 microwell_grid.addWidget(button, row, col)
-
 
         x_line_edit = QLineEdit()
         x_line_edit.returnPressed.connect(lambda: self.handle_x_input(x_line_edit))
@@ -337,9 +405,13 @@ class ZaberWidget(QWidget):
         test_all_button.clicked.connect(self.testAll)
         microwell_grid.layout().addWidget(test_all_button, 5, 14)
 
+        unseal_button = QPushButton("Remove Seal")
+        unseal_button.clicked.connect(self.remove_seal)
+        microwell_grid.layout().addWidget(unseal_button, 6, 13)
+
         random_button = QPushButton("Random Wells")
         random_button.clicked.connect(self.randomMove)
-        microwell_grid.layout().addWidget(random_button, 6, 13)
+        microwell_grid.layout().addWidget(random_button, 6, 14)
 
         self.grid = microwell_grid
 
@@ -499,6 +571,7 @@ class ZaberWidget(QWidget):
     def closeEvent(self, event):
         self.connection.close()
         return super().closeEvent(event)
+    
 
 def main():
     app = QApplication(sys.argv)
