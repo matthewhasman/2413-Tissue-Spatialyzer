@@ -1,5 +1,3 @@
-% Plots raw pressure data with a second order approximation
-
 clear all; close all;
 
 % Parse Excel files for data:
@@ -12,14 +10,17 @@ data = readcell('200uLGood.csv');
 time_stamps = cellfun(@(x) x, data(2:end, 1)); 
 pressure = cellfun(@(x) x, data(2:end, 2)); 
 target_pressure = cellfun(@(x) x, data(2:end, 3)); 
+flow = cellfun(@(x) x, data(2:end, 4)); 
+target_flow = cellfun(@(x) x, data(2:end, 5)); 
 
 t = milliseconds(time_stamps - time_stamps(1)); % in ms
-
 % Parse Target Pressure for non-zero indices:
 % ----------------------------------------------------------------------
 
+target = target_flow;
+
 % Find non-zero entries
-non_zero_indices = find(target_pressure);
+non_zero_indices = find(target_flow);
 
 % Initialize start and end indices
 start_index = non_zero_indices(1);
@@ -30,7 +31,7 @@ pairs = [];
 
 % Iterate through non-zero indices
 for i = 2:length(non_zero_indices)
-    if non_zero_indices(i) == non_zero_indices(i-1) + 1
+    if target_flow(non_zero_indices(i)) == target_flow(non_zero_indices(i-1))
         % If consecutive, update end_index
         end_index = non_zero_indices(i);
     else
@@ -49,21 +50,38 @@ end
 
 % Find the step response:
 % ----------------------------------------------------------------------
-time = t(pairs(1, 1):pairs(1, 2) - 75);
-p = -1*pressure(pairs(1, 1):pairs(1, 2) - 75);
-time = time - time(1);
-
-plot(time, p);
-
-
-[G,wn,zeta,tau_r] = overdamped(time, p);
-% [G,wn,zeta] = underDamped(time, p, 1e-3);
+hold off;
 hold on;
-dt = linspace(0, 5000, 5000);
 
+% for a = 1:length(pairs)
+%     time = t(pairs(a, 1):pairs(a, 2));
+%     Q = abs(flow(pairs(a, 1):pairs(a, 2)));
+%     time = time - time(1);
+%     Q = Q - Q(1);
+% 
+%     plot(time, Q);
+% 
+%     [G,wn,zeta,FV] = underDamped(time, Q, 1e-3);
+% 
+%     dt = linspace(0, 8.1, 8104);
+%     plot(step(G, dt));
+% end
+
+time = t(pairs(1, 1):pairs(1, 2));
+Q = abs(flow(pairs(1, 1):pairs(1, 2)));
+time = time - time(1);
+Q = Q - Q(1);
+
+plot(time, Q);
+
+% [G,wn,zeta,FV] = underDamped(time, Q, 1e-3);
+
+dt = linspace(0, 8.1, 8104);
 plot(step(G, dt));
 
-title('Step Response of setting pressure with zero volume');
+title('Step Response of Flow Rate');
 xlabel('Time (ms)');
-ylabel('Pressure');
+ylabel('Flowrate');
 legend('Measured Data', 'Second Order Approximation');
+
+info = stepinfo(G);
